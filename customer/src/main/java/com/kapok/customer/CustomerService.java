@@ -1,5 +1,6 @@
 package com.kapok.customer;
 
+import com.kapok.amqp.RabbitMQMessageProducer;
 import com.kapok.clients.fraud.FraudCheckResponse;
 import com.kapok.clients.fraud.FraudClient;
 import com.kapok.clients.notification.NotificationClient;
@@ -13,7 +14,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
-    private final NotificationClient notificationClient;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
     public void registerCustomer(CustomerRegistrationRequest request) {
 
@@ -34,14 +35,17 @@ public class CustomerService {
         if(fraudCheckResponse.isFraudster()){
             throw new IllegalStateException("fraudster exception");
         }
+        NotificationRequest notificationRequest = new NotificationRequest(
+                customer.getId(),
+                customer.getEmail(),
+                String.format("Hi %s, welcome to kapok ...",
+                        customer.getEmail())
+        );
 
-        notificationClient.sendNotification(
-                new NotificationRequest(
-                        customer.getId(),
-                        customer.getEmail(),
-                        String.format("Hi %s, welcome to kapok ...",
-                                customer.getEmail())
-                )
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
         );
     }
 }
