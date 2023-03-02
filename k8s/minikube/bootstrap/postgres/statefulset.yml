@@ -20,7 +20,7 @@ spec:
       containers:
         - name: postgres
           image: postgres
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: "  /var/lib/postgresql/data"
               name: postgres
