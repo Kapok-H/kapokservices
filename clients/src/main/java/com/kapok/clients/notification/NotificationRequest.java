@@ -1,7 +1,9 @@
 package com.kapok.clients.notification;
 
+import java.util.UUID;
+
 public record NotificationRequest(
-        Integer toCustomerId,
+        UUID toCustomerId,
         String toCustomerName,
         String message
 ) {

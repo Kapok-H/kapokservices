@@ -1,8 +1,23 @@
 package com.kapok.customer;
 
-public record CustomerRegistrationRequest(
-        String firstName,
-        String lastName,
-        String email
-) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record CustomerRegistrationRequest(Customer customer) {
+
+    public CustomerRegistrationRequest(
+            @JsonProperty("customer") Customer customer) {
+        this.customer = customer;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerRegistrationRequest{" +
+                "customer=" + customer +
+                '}';
+    }
 }
+

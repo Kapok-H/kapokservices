@@ -1,12 +1,10 @@
 package com.kapok.customer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
+import java.util.UUID;
 
 
 @Entity
@@ -16,19 +14,16 @@ import javax.persistence.SequenceGenerator;
 @Getter
 @Setter
 @ToString
+//@JsonIgnoreProperties(value = {"id"}, allowGetters = true)
 public class Customer {
     @Id
-    @SequenceGenerator(
-            name = "customer_id_sequence",
-            sequenceName = "customer_id_sequence"
-
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "customer_id_sequence"
-    )
-    private Integer id;
+    private UUID id;
+    @Column(nullable = false)
     private String firstNname;
+    @Column(nullable = false)
     private String lastNname;
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
+    @Column(nullable = false)
     private String email;
 }
