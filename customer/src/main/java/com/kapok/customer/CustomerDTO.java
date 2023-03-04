@@ -13,6 +13,6 @@ public class CustomerDTO {
     private UUID id;
     private String firstName;
     private String lastName;
-    private String phoneNumber;
+    private Integer phoneNumber;
     private String email;
 }

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-//@JsonIgnoreProperties(value = {"id"}, allowGetters = true)
+@JsonIgnoreProperties(value = {"id"}, allowGetters = true)
 public class Customer {
     @Id
     private UUID id;
@@ -23,7 +23,7 @@ public class Customer {
     @Column(nullable = false)
     private String lastNname;
     @Column(nullable = false, unique = true)
-    private String phoneNumber;
+    private Integer phoneNumber;
     @Column(nullable = false)
     private String email;
 }
