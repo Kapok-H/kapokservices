@@ -28,14 +28,19 @@ public class CustomerService {
 
     public void registerCustomer(CustomerRegistrationRequest request) {
 
-        Customer customer = request.getCustomer();
+        Customer customer = Customer.builder()
+                .id(request.id())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .phoneNumber(request.phoneNumber())
+                .build();
 
-        Integer phoneNumber = customer.getPhoneNumber();
-        Optional<Customer> customerOptional = customerRepository.findCustomerByPhoneNumber(phoneNumber);
+        Optional<Customer> customerOptional = customerRepository.findCustomerByPhoneNumber(request.phoneNumber());
         if (customerOptional.isPresent()) {
             // make sure that's the exact same customer
             if (!customerOptional.get().getEmail().equals(customer.getEmail())) {
-                throw new IllegalStateException(String.format("phone number [%s] is taken", phoneNumber));
+                throw new IllegalStateException(String.format("phone number [%s] is taken", request.phoneNumber()));
             }
             // If duplicate commits occur, return directly
             return;
@@ -48,8 +53,8 @@ public class CustomerService {
             throw new IllegalStateException("fraudster exception");
         }
 
-        if(request.getCustomer().getId() == null)
-            request.getCustomer().setId(UUID.randomUUID());
+        if(request.id() == null)
+            customer.setId(UUID.randomUUID());
 
         customerRepository.save(customer);
 

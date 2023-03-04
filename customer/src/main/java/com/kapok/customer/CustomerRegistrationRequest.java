@@ -1,23 +1,12 @@
 package com.kapok.customer;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.UUID;
 
-public record CustomerRegistrationRequest(Customer customer) {
-
-    public CustomerRegistrationRequest(
-            @JsonProperty("customer") Customer customer) {
-        this.customer = customer;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    @Override
-    public String toString() {
-        return "CustomerRegistrationRequest{" +
-                "customer=" + customer +
-                '}';
-    }
+public record CustomerRegistrationRequest(
+        UUID id,
+        String firstName,
+        String lastName,
+        Integer phoneNumber,
+        String email
+) {
 }
-

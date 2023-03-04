@@ -13,15 +13,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(value = {"id"}, allowGetters = true)
 public class Customer {
     @Id
     private UUID id;
     @Column(nullable = false)
-    private String firstNname;
+    private String firstName;
     @Column(nullable = false)
-    private String lastNname;
+    private String lastName;
     @Column(nullable = false, unique = true)
     private Integer phoneNumber;
     @Column(nullable = false)

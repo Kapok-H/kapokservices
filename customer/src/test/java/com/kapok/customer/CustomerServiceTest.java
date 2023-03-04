@@ -58,39 +58,38 @@ class CustomerServiceTest {
     }
 
     @Test
-    void isShouldSaveNewCustomer() {
+    void itShouldSaveNewCustomer() {
         // given
-        Customer customer = Customer.builder()
-                .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
-                .build();
         // ... a request
-        CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(customer);
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+                UUID.randomUUID(),
+                "kapok",
+                "code",
+                131,
+                "kapoktest@gmail.com"
+        );
 
         // ... No customer with phone number passed
-        given(customerRepository.findCustomerByPhoneNumber(customer.getPhoneNumber()))
+        given(customerRepository.findCustomerByPhoneNumber(request.phoneNumber()))
                 .willReturn(Optional.empty());
 
         // ... Customer is not fraud
-        given(fraudClient.isFraudster(customer.getId()))
+        given(fraudClient.isFraudster(request.id()))
                 .willReturn(new FraudCheckResponse(false));
         // ... The customer successfully registers the notification request
         NotificationRequest notificationRequest = new NotificationRequest(
-                customer.getId(),
-                customer.getEmail(),
+                request.id(),
+                request.email(),
                 String.format("Hi %s, welcome to kapok ...",
-                        customer.getEmail())
+                        request.email())
         );
 
         // when
-        underTest.registerCustomer(registrationRequest);
+        underTest.registerCustomer(request);
 
         // then
         then(customerRepository).should().save(customerArgumentCaptor.capture());
-        then(fraudClient).should().isFraudster(customer.getId());
+        then(fraudClient).should().isFraudster(request.id());
 
         then(rabbitMQMessageProducer).should().publish(
                 notificationRequest,
@@ -98,24 +97,29 @@ class CustomerServiceTest {
                 "internal.notification.routing-key"
         );
         Customer customerArgumentCaptorValue = customerArgumentCaptor.getValue();
-        assertThat(customerArgumentCaptorValue).isEqualTo(customer);
+        assertThat(customerArgumentCaptorValue).usingRecursiveComparison().ignoringFields("id").isEqualTo(request);
     }
 
     @Test
     void itShouldNotSaveNewCustomerWhenCustomerExists() {
         // given
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+                UUID.randomUUID(),
+                "kapok",
+                "code",
+                131,
+                "kapoktest@gmail.com"
+        );
         Customer customer = Customer.builder()
-                .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
+                .id(request.id())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .phoneNumber(request.phoneNumber())
                 .build();
-        // ... a request
-        CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(customer);
 
         // ... Customers who have already registered
-        given(customerRepository.findCustomerByPhoneNumber(customer.getPhoneNumber()))
+        given(customerRepository.findCustomerByPhoneNumber(request.phoneNumber()))
                 .willReturn(Optional.of(customer));
 
         // ... customer is not fraud
@@ -123,72 +127,66 @@ class CustomerServiceTest {
                 .willReturn(new FraudCheckResponse(false));
 
         // When
-        underTest.registerCustomer(registrationRequest);
+        underTest.registerCustomer(request);
 
         // Then
         then(customerRepository).should(never()).save(any());
     }
 
     @Test
-    void isShouldNotSaveCustomerWhenCustomerExists() {
-        // given
-        Customer customer = Customer.builder()
-                .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
-                .build();
+    void itShouldNotSaveCustomerWhenCustomerExists() {
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+                UUID.randomUUID(),
+                "kapok",
+                "code",
+                131,
+                "kapoktest@gmail.com"
+        );
 
         Customer customerTwo = Customer.builder()
-                .id(UUID.randomUUID())
-                .firstNname("john")
-                .lastNname("math")
+                .id(request.id())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
                 .email("johnmath@gmail.com")
-                .phoneNumber(131)
+                .phoneNumber(request.phoneNumber())
                 .build();
 
-        // ... a request
-        CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(customer);
-
         // ... Customers whose email address has already been registered
-        given(customerRepository.findCustomerByPhoneNumber(customer.getPhoneNumber()))
+        given(customerRepository.findCustomerByPhoneNumber(request.phoneNumber()))
                 .willReturn(Optional.of(customerTwo));
 
         // When
         // Then
-        assertThatThrownBy(() ->  underTest.registerCustomer(registrationRequest))
+        assertThatThrownBy(() ->  underTest.registerCustomer(request))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining(String.format("phone number [%s] is taken", customer.getPhoneNumber()));
+                .hasMessageContaining(String.format("phone number [%s] is taken", request.phoneNumber()));
 
         // Finally
         then(customerRepository).should(never()).save(any(Customer.class));
     }
 
     @Test
-    void isShouldNotSaveCustomerWhenCustomerIsFrauder(){
+    void itShouldNotSaveCustomerWhenCustomerIsFrauder(){
         // given
-        Customer customer = Customer.builder()
-                .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
-                .build();
-        // ... a request
-        CustomerRegistrationRequest registrationRequest = new CustomerRegistrationRequest(customer);
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+                UUID.randomUUID(),
+                "kapok",
+                "code",
+                131,
+                "kapoktest@gmail.com"
+        );
 
         // ... No customer with phone number passed
-        given(customerRepository.findCustomerByPhoneNumber(customer.getPhoneNumber()))
+        given(customerRepository.findCustomerByPhoneNumber(request.phoneNumber()))
                 .willReturn(Optional.empty());
 
         // ... Customer is not fraud
-        given(fraudClient.isFraudster(customer.getId()))
+        given(fraudClient.isFraudster(request.id()))
                 .willReturn(new FraudCheckResponse(true));
 
         // When
         // Then
-        assertThatThrownBy(() -> underTest.registerCustomer(registrationRequest))
+        assertThatThrownBy(() -> underTest.registerCustomer(request))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("fraudster exception");
 
@@ -197,28 +195,17 @@ class CustomerServiceTest {
     }
 
     @Test
-    void isShouldSaveCustomerWhenIdIsNull(){
-        // given
-        Customer customer = Customer.builder()
-                .id(null)
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
-                .build();
-
-        Customer compareCustomer = Customer.builder()
-                .id(null)
-                .firstNname("kapok")
-                .lastNname("code")
-                .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
-                .build();
-        // ... a request
-        CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
+    void itShouldSaveCustomerWhenIdIsNull(){
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+                null,
+                "kapok",
+                "code",
+                131,
+                "kapoktest@gmail.com"
+        );
 
         // ... No customer with phone number passed
-        given(customerRepository.findCustomerByPhoneNumber(customer.getPhoneNumber()))
+        given(customerRepository.findCustomerByPhoneNumber(request.phoneNumber()))
                 .willReturn(Optional.empty());
 
         // when
@@ -228,7 +215,7 @@ class CustomerServiceTest {
         then(customerRepository).should().save(customerArgumentCaptor.capture());
         Customer customerArgumentCaptorValue = customerArgumentCaptor.getValue();
 
-        assertThat(customerArgumentCaptorValue).usingRecursiveComparison().ignoringFields("id").isEqualTo(compareCustomer);
+        assertThat(customerArgumentCaptorValue).usingRecursiveComparison().ignoringFields("id").isEqualTo(request);
         assertThat(customerArgumentCaptorValue.getId()).isNotNull();
 
     }

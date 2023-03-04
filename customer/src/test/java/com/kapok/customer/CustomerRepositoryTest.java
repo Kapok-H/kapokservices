@@ -23,13 +23,13 @@ class CustomerRepositoryTest {
     private CustomerRepository underTest;
 
     @Test
-    void isShouldFindCustomerByPhoneNumber() {
+    void itShouldFindCustomerByPhoneNumber() {
         // Given
         UUID id = UUID.randomUUID();
         Customer customer = Customer.builder()
                 .id(id)
-                .firstNname("kapok")
-                .lastNname("code")
+                .firstName("kapok")
+                .lastName("code")
                 .email("kapokoffical@gmail.com")
                 .phoneNumber(131)
                 .build();
@@ -44,8 +44,8 @@ class CustomerRepositoryTest {
                 .isPresent()
                 .hasValueSatisfying(c -> {
                     assertThat(c.getId()).isEqualTo(id);
-                    assertThat(c.getFirstNname()).isEqualTo("kapok");
-                    assertThat(c.getLastNname()).isEqualTo("code");
+                    assertThat(c.getFirstName()).isEqualTo("kapok");
+                    assertThat(c.getLastName()).isEqualTo("code");
                     assertThat(c.getPhoneNumber()).isEqualTo(131);
                 });
     }
@@ -62,13 +62,13 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void isShouldSaveCustomer() {
+    void itShouldSaveCustomer() {
         // Given
         UUID id = UUID.randomUUID();
         Customer customer = Customer.builder()
                 .id(id)
-                .firstNname("kapok")
-                .lastNname("code")
+                .firstName("kapok")
+                .lastName("code")
                 .email("kapokoffical@gmail.com")
                 .phoneNumber(131)
                 .build();
@@ -82,8 +82,8 @@ class CustomerRepositoryTest {
                 .isPresent()
                 .hasValueSatisfying(c -> {
                     assertThat(c.getId()).isEqualTo(id);
-                    assertThat(c.getFirstNname()).isEqualTo("kapok");
-                    assertThat(c.getLastNname()).isEqualTo("code");
+                    assertThat(c.getFirstName()).isEqualTo("kapok");
+                    assertThat(c.getLastName()).isEqualTo("code");
                     assertThat(c.getPhoneNumber()).isEqualTo(131);
                 });
     }
@@ -91,12 +91,12 @@ class CustomerRepositoryTest {
 
 
     @Test
-    void isShouldNotSaveCustomerWhenFirstNameIsNull() {
+    void itShouldNotSaveCustomerWhenFirstNameIsNull() {
         // Given
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID())
-                .firstNname(null)
-                .lastNname("code")
+                .firstName(null)
+                .lastName("code")
                 .email("kapokoffical@gmail.com")
                 .phoneNumber(131)
                 .build();
@@ -104,17 +104,17 @@ class CustomerRepositoryTest {
         // When
         // Then
         assertThatThrownBy(() ->underTest.save(customer))
-                .hasMessageContaining("not-null property references a null or transient value : com.kapok.customer.Customer.firstNname")
+                .hasMessageContaining("not-null property references a null or transient value : com.kapok.customer.Customer.firstName")
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
-    void isShouldNotSaveCustomerWhenLastNameIsNull() {
+    void itShouldNotSaveCustomerWhenLastNameIsNull() {
         // Given
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname(null)
+                .firstName("kapok")
+                .lastName(null)
                 .email("kapokoffical@gmail.com")
                 .phoneNumber(131)
                 .build();
@@ -122,17 +122,17 @@ class CustomerRepositoryTest {
         // When
         // Then
         assertThatThrownBy(() ->underTest.save(customer))
-                .hasMessageContaining("not-null property references a null or transient value : com.kapok.customer.Customer.lastNname")
+                .hasMessageContaining("not-null property references a null or transient value : com.kapok.customer.Customer.lastName")
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
-    void isShouldNotSaveCustomerWhenEmailIsNull() {
+    void itShouldNotSaveCustomerWhenEmailIsNull() {
         // Given
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
+                .firstName("kapok")
+                .lastName("code")
                 .email(null)
                 .phoneNumber(131)
                 .build();
@@ -145,12 +145,12 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void isShouldNotSaveCustomerWhenPhoneNumberIsNull() {
+    void itShouldNotSaveCustomerWhenPhoneNumberIsNull() {
         // Given
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID())
-                .firstNname("kapok")
-                .lastNname("code")
+                .firstName("kapok")
+                .lastName("code")
                 .email("kapoktest@gmail.com")
                 .phoneNumber(null)
                 .build();
